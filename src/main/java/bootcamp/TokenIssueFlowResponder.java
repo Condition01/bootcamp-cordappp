@@ -9,6 +9,7 @@ public class TokenIssueFlowResponder extends FlowLogic<Void> {
 
     private final FlowSession otherSide;
 
+    //Flow session ja passada
     public TokenIssueFlowResponder(FlowSession otherSide) {
         this.otherSide = otherSide;
     }
@@ -16,11 +17,14 @@ public class TokenIssueFlowResponder extends FlowLogic<Void> {
     @Override
     @Suspendable
     public Void call() throws FlowException {
+
+
         SignedTransaction signedTransaction = subFlow(new SignTransactionFlow(otherSide) {
             @Suspendable
             @Override
             protected void checkTransaction(SignedTransaction stx) throws FlowException {
                 // Implement responder flow transaction checks here
+
             }
         });
         subFlow(new ReceiveFinalityFlow(otherSide, signedTransaction.getId()));

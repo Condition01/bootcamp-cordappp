@@ -22,7 +22,7 @@ public class FlowTests {
     private StartedMockNode nodeA;
     private StartedMockNode nodeB;
 
-    @Before
+    @Before //MockNetwork, in-memory Nodes
     public void setup() {
         network = new MockNetwork(
                 new MockNetworkParameters(
@@ -39,18 +39,21 @@ public class FlowTests {
         network.stopNodes();
     }
 
-//    @Test
-//    public void transactionConstructedByFlowUsesTheCorrectNotary() throws Exception {
-//        TokenIssueFlowInitiator flow = new TokenIssueFlowInitiator(nodeB.getInfo().getLegalIdentities().get(0), 99);
-//        CordaFuture<SignedTransaction> future = nodeA.startFlow(flow);
-//        network.runNetwork();
-//        SignedTransaction signedTransaction = future.get();
-//
-//        assertEquals(1, signedTransaction.getTx().getOutputStates().size());
-//        TransactionState output = signedTransaction.getTx().getOutputs().get(0);
-//
-//        assertEquals(network.getNotaryNodes().get(0).getInfo().getLegalIdentities().get(0), output.getNotary());
-//    }
+    @Test
+    public void transactionConstructedByFlowUsesTheCorrectNotary() throws Exception {
+        //Criando FlowInitiator usando o NodeB como o token owner
+        TokenIssueFlowInitiator flow = new TokenIssueFlowInitiator(nodeB.getInfo().getLegalIdentities().get(0), 99);
+        //Começa o flow
+        CordaFuture<SignedTransaction> future = nodeA.startFlow(flow);
+        network.runNetwork();
+        SignedTransaction signedTransaction = future.get();
+
+        //Verificamos se tudo deu certo
+        assertEquals(1, signedTransaction.getTx().getOutputStates().size());
+        TransactionState output = signedTransaction.getTx().getOutputs().get(0);
+
+        assertEquals(network.getNotaryNodes().get(0).getInfo().getLegalIdentities().get(0), output.getNotary());
+    }
 //
 //    @Test
 //    public void transactionConstructedByFlowHasOneTokenStateOutputWithTheCorrectAmountAndOwner() throws Exception {

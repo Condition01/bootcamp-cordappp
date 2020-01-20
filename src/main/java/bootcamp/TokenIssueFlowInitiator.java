@@ -1,11 +1,18 @@
 package bootcamp;
 
 import co.paralleluniverse.fibers.Suspendable;
+import com.google.common.collect.ImmutableList;
+import net.corda.core.contracts.Command;
+import net.corda.core.contracts.CommandData;
+import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
+
+import java.security.PublicKey;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 
@@ -35,18 +42,29 @@ public class TokenIssueFlowInitiator extends FlowLogic<SignedTransaction> {
         // We get a reference to our own identity.
         Party issuer = getOurIdentity();
 
+
+        List<PublicKey> requiredSigners = ImmutableList.of(issuer.getOwningKey());
+
+        Command issueCommand = new Command(new TokenContract.Commands.Issue(), requiredSigners);
+
+
         /* ============================================================================
          *         TODO 1 - Create our TokenState to represent on-ledger tokens!
          * ===========================================================================*/
         // We create our new TokenState.
-        TokenState tokenState = null;
-
+        TokenState tokenState = new TokenState(issuer,owner,amount);
 
         /* ============================================================================
          *      TODO 3 - Build our token issuance transaction to update the ledger!
          * ===========================================================================*/
         // We build our transaction.
-        TransactionBuilder transactionBuilder = null;
+        TransactionBuilder transactionBuilder = new TransactionBuilder();
+
+        transactionBuilder.setNotary(notary);
+
+        transactionBuilder
+                .addOutputState(tokenState, "java_bootcamp.TokenContract")
+                .addCommand(issueCommand);
 
         /* ============================================================================
          *          TODO 2 - Write our TokenContract to control token issuance!
@@ -54,12 +72,13 @@ public class TokenIssueFlowInitiator extends FlowLogic<SignedTransaction> {
         // We check our transaction is valid based on its contracts.
         transactionBuilder.verify(getServiceHub());
 
+        //Inicia a sessão
         FlowSession session = initiateFlow(owner);
 
         // We sign the transaction with our private key, making it immutable.
         SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
 
-        // The counterparty signs the transaction
+        // The counterparty signs the transaction -- Aqui você cria um flow para coletar as assinatura daqueles que deseja
         SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(signedTransaction, singletonList(session)));
 
         // We get the transaction notarised and recorded automatically by the platform.

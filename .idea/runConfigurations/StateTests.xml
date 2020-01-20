@@ -1,12 +1,15 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="StateTests" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
     <module name="bootcamp-cordapp.test" />
+    <shortenClasspath name="MANIFEST" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="bootcamp.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
     <option name="PACKAGE_NAME" value="bootcamp" />
     <option name="MAIN_CLASS_NAME" value="bootcamp.StateTests" />
     <option name="METHOD_NAME" value="" />
