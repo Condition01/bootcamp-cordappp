@@ -43,7 +43,7 @@ public class TokenIssueFlowInitiator extends FlowLogic<SignedTransaction> {
         Party issuer = getOurIdentity();
 
 
-        List<PublicKey> requiredSigners = ImmutableList.of(issuer.getOwningKey());
+        List<PublicKey> requiredSigners = ImmutableList.of(issuer.getOwningKey(), owner.getOwningKey());
 
         Command issueCommand = new Command(new TokenContract.Commands.Issue(), requiredSigners);
 
@@ -52,7 +52,7 @@ public class TokenIssueFlowInitiator extends FlowLogic<SignedTransaction> {
          *         TODO 1 - Create our TokenState to represent on-ledger tokens!
          * ===========================================================================*/
         // We create our new TokenState.
-        TokenState tokenState = new TokenState(issuer,owner,amount);
+        TokenState tokenState =  new TokenState(issuer,owner,amount);
 
         /* ============================================================================
          *      TODO 3 - Build our token issuance transaction to update the ledger!
@@ -63,7 +63,7 @@ public class TokenIssueFlowInitiator extends FlowLogic<SignedTransaction> {
         transactionBuilder.setNotary(notary);
 
         transactionBuilder
-                .addOutputState(tokenState, "java_bootcamp.TokenContract")
+                .addOutputState(tokenState, TokenContract.ID)
                 .addCommand(issueCommand);
 
         /* ============================================================================
